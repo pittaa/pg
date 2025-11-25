@@ -1,4 +1,3 @@
-
 import sys
 
 # definice úvodních binárních sekvencí obrázkových souborů
@@ -13,7 +12,9 @@ def read_header(file_name, header_length):
     Tato funkce načte binární soubor z cesty file_name,
     z něj přečte prvních header_length bytů a ty vrátí pomocí return
     """
-    return b'xxx'
+    # Použití 'rb' pro čtení v binárním režimu
+    with open(file_name, 'rb') as f:
+        return f.read(header_length)
 
 
 def is_jpeg(file_name):
@@ -21,30 +22,35 @@ def is_jpeg(file_name):
     Funkce zkusí přečíst ze souboru hlavičku obrázku jpeg,
     tu srovná s definovanou hlavičkou v proměnné jpeg_header
     """
-    # načti hlavičku souboru
+    # načti hlavičku souboru o délce jpeg_header
     header = read_header(file_name, len(jpeg_header))
 
     # vyhodnoť zda je soubor jpeg
-
-    return False
+    return header == jpeg_header
 
 
 def is_gif(file_name):
     """
-    Funkce zkusí přečíst ze souboru hlavičku obrázku jpeg,
+    Funkce zkusí přečíst ze souboru hlavičku obrázku gif,
     tu srovná s definovanými hlavičkami v proměnných gif_header1 a gif_header2
     """
-    # vyhodnoť zda je soubor gif
-    return False
+    # Načteme délku podle jedné z hlaviček (obě mají 6 bytů)
+    header = read_header(file_name, len(gif_header1))
+    
+    # vyhodnoť zda je soubor gif (může být verze 87a nebo 89a)
+    return header == gif_header1 or header == gif_header2
 
 
 def is_png(file_name):
     """
-    Funkce zkusí přečíst ze souboru hlavičku obrázku jpeg,
+    Funkce zkusí přečíst ze souboru hlavičku obrázku png,
     tu srovná s definovanou hlavičkou v proměnné png_header
     """
+    # načti hlavičku souboru o délce png_header
+    header = read_header(file_name, len(png_header))
+    
     # vyhodnoť zda je soubor png
-    return False
+    return header == png_header
 
 
 def print_file_type(file_name):
@@ -62,6 +68,15 @@ def print_file_type(file_name):
 
 
 if __name__ == '__main__':
-    # přidej try-catch blok, odchyť obecnou vyjímku Exception a vypiš ji
-    file_name = sys.argv[1]
-    print_file_type(file_name)
+    try:
+        # Zkontrolujeme, zda byl zadán argument
+        if len(sys.argv) > 1:
+            file_name = sys.argv[1]
+            print_file_type(file_name)
+        else:
+            print("Chyba: Musíte zadat název souboru jako argument příkazové řádky.")
+            
+    except FileNotFoundError:
+        print(f"Chyba: Soubor '{file_name}' nebyl nalezen.")
+    except Exception as e:
+        print(f"Nastala neočekávaná chyba: {e}")
